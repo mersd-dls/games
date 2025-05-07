@@ -1,5 +1,5 @@
-﻿<html><head>
-<title>Tunedle - Melody Puzzles/title>
+<html><head>
+<title>PICO-8 Cartridge</title>
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <script type="text/javascript">
 
@@ -333,7 +333,7 @@
 	var p8_update_layout_hash = -1;
 	var last_windowed_container_height = 512;
 	var p8_layout_frames = 0;
-	
+
 	function p8_update_layout()
 	{
 		var canvas = document.getElementById("canvas");
@@ -526,7 +526,6 @@
 
 
 	var p8_touch_detected = false;
-	
 	addEventListener("touchstart", function(event)
 	{
 		p8_touch_detected = true;
@@ -539,9 +538,6 @@
 
 	},  {passive: true});
 
-
-
-	
 	function p8_create_audio_context()
 	{
 		if (pico8_audio_context) 
