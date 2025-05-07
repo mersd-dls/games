@@ -333,7 +333,10 @@
 	var p8_update_layout_hash = -1;
 	var last_windowed_container_height = 512;
 	var p8_layout_frames = 0;
-
+<script>
+// force the shell to think we have touch controls:
+p8_touch_detected = true;
+</script>
 	function p8_update_layout()
 	{
 		var canvas = document.getElementById("canvas");
