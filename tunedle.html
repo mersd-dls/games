@@ -526,19 +526,7 @@
 
 
 	var p8_touch_detected = true;
-	addEventListener("touchstart", function(event)
-	{
-		p8_touch_detected = true;
-
-		// hide codo_textarea -- clipboard support on mobile is not feasible
-		el = document.getElementById("codo_textarea");
-		if (el && el.style.display != "none"){
-			el.style.display="none";
-		}
-
-	},  {passive: true});
-
-<script>
+	<script>
 // force touch UI on desktop
 p8_touch_detected = true;
 
@@ -559,6 +547,20 @@ touchArea.addEventListener("mousedown", function(e){ mouse2touch(e,0); });
 touchArea.addEventListener("mousemove", function(e){ mouse2touch(e,1); });
 touchArea.addEventListener("mouseup",   function(e){ mouse2touch(e,2); });
 </script>
+	
+	addEventListener("touchstart", function(event)
+	{
+		p8_touch_detected = true;
+
+		// hide codo_textarea -- clipboard support on mobile is not feasible
+		el = document.getElementById("codo_textarea");
+		if (el && el.style.display != "none"){
+			el.style.display="none";
+		}
+
+	},  {passive: true});
+
+
 
 	
 	function p8_create_audio_context()
