@@ -525,28 +525,7 @@
 	}
 
 
-	var p8_touch_detected = true;
-	<script>
-// force touch UI on desktop
-p8_touch_detected = true;
-
-// helper to wrap a MouseEvent as a TouchEvent for pico8
-function mouse2touch(e, step) {
-  // create a fake touches[] array
-  pico8_buttons_event({ touches: [{ clientX: e.clientX, clientY: e.clientY }] }, step);
-  e.preventDefault();
-}
-
-// grab the invisible overlay container
-var touchArea = document.getElementById("touch_controls_gfx");
-// make sure it actually receives pointer events
-touchArea.style.pointerEvents = "auto";
-
-// now bind mouse events to the same pipeline
-touchArea.addEventListener("mousedown", function(e){ mouse2touch(e,0); });
-touchArea.addEventListener("mousemove", function(e){ mouse2touch(e,1); });
-touchArea.addEventListener("mouseup",   function(e){ mouse2touch(e,2); });
-</script>
+	var p8_touch_detected = false;
 	
 	addEventListener("touchstart", function(event)
 	{
