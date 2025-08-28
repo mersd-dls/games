@@ -10,13 +10,13 @@
             text-align: center;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
         h1 { 
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin: 20px 0 10px 0;
         }
         
         .game-container {
@@ -24,15 +24,16 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            padding: 20px;
+            padding: 10px 20px;
+            overflow-y: auto;
+            padding-bottom: 100px; /* Space for floating keyboard */
         }
         
         .guesses-container {
-            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 20px;
+            margin-top: 20px;
         }
         
         .guess-row {
@@ -100,16 +101,58 @@
             cursor: not-allowed; 
         }
         
-        .message { 
-            font-size: 20px; 
-            margin: 20px 0;
-            min-height: 30px;
+        .message-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-align: center;
+            min-width: 300px;
+        }
+        
+        .message-popup.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+        
+        .message-popup .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+        }
+        
+        .message-popup .close-btn:hover {
+            color: #333;
         }
         
         .keyboard-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: #333;
             padding: 20px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 500;
         }
         
         .keyboard { 
@@ -157,13 +200,17 @@
 <body>
     <div class="game-container">
         <h1>Tunedle 🎵</h1>
-        <div class="message" id="message"></div>
         <div class="guesses-container" id="guesses"></div>
         <div class="controls">
             <button id="submitBtn" disabled>Submit</button>
             <button id="deleteBtn">Delete</button>
             <button id="restartBtn">Restart</button>
         </div>
+    </div>
+    
+    <div class="message-popup" id="messagePopup">
+        <button class="close-btn" onclick="closeMessage()">×</button>
+        <div id="messageText"></div>
     </div>
     
     <div class="keyboard-container">
@@ -253,12 +300,24 @@
             return melody;
         }
 
+        function showMessage(text) {
+            const popup = document.getElementById('messagePopup');
+            const messageText = document.getElementById('messageText');
+            messageText.textContent = text;
+            popup.classList.add('show');
+        }
+        
+        function closeMessage() {
+            const popup = document.getElementById('messagePopup');
+            popup.classList.remove('show');
+        }
+
         function resetGame() {
             solution = randomMelody();
             guesses = [];
             currentGuess = [];
             gameOver = false;
-            document.getElementById('message').textContent = '';
+            closeMessage();
             renderGuesses();
             renderKeyboard();
             document.getElementById('submitBtn').disabled = true;
@@ -379,11 +438,10 @@
             
             // Check win/lose
             if (result.every(r => r === 'green')) {
-                document.getElementById('message').textContent = '🎉 You guessed the melody!';
+                showMessage('🎉 You guessed the melody!');
                 gameOver = true;
             } else if (guesses.length >= MAX_ATTEMPTS) {
-                document.getElementById('message').textContent =
-                    'Out of guesses! Melody was: ' + solution.map(n => n.name).join(' ');
+                showMessage('Out of guesses! Melody was: ' + solution.map(n => n.name).join(' '));
                 gameOver = true;
             }
             currentGuess = [];
