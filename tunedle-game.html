@@ -212,9 +212,20 @@
 
         // --- Audio context and note playback ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
-        const audioCtx = new AudioContext();
+        let audioCtx = null;
+        
+        // Initialize audio context on first user interaction (mobile compatibility)
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+        }
 
         function playNote(midi, duration = 0.35) {
+            if (!audioCtx) return;
             const freq = 440 * Math.pow(2, (midi - 69) / 12);
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -262,6 +273,9 @@
                 btn.textContent = note.name;
                 btn.dataset.noteName = note.name;
                 btn.onclick = () => {
+                    // Initialize audio on first interaction (for mobile)
+                    initAudio();
+                    
                     // Visual feedback - always show
                     btn.classList.add('active', 'playing');
                     setTimeout(() => btn.classList.remove('active'), 150);
