@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tunedle - Melody Wordle Game</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #f4f4f4; 
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        h1 { 
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 20px;
+        }
+        
+        .guesses-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .guess-row {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .play-guess-btn {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #4caf50;
+            background: #fff;
+            color: #4caf50;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .play-guess-btn:hover {
+            background: #4caf50;
+            color: #fff;
+        }
+        
+        .note-box, .bell-box {
+            width: 48px;
+            height: 48px;
+            border: 2px solid #bbb;
+            border-radius: 8px;
+            margin: 0 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: #fff;
+        }
+        
+        .bell-box.green { background: #b6eab6; }
+        .bell-box.orange { background: #ffe5b4; }
+        .bell-box.grey { background: #e0e0e0; }
+        
+        .controls { 
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: none;
+            background: #4caf50;
+            color: #fff;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background 0.2s;
+        }
+        
+        button:disabled { 
+            background: #aaa; 
+            cursor: not-allowed; 
+        }
+        
+        .message { 
+            font-size: 20px; 
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        
+        .keyboard-container {
+            background: #333;
+            padding: 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .keyboard { 
+            display: flex; 
+            justify-content: center; 
+            gap: 8px;
+        }
+        
+        .key {
+            background: #fff;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            padding: 25px 20px;
+            cursor: pointer;
+            font-size: 20px;
+            user-select: none;
+            transition: all 0.15s;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .key:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .key:active, .key.active {
+            background: #4caf50;
+            color: #fff;
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        @keyframes notePress {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        
+        .key.playing {
+            animation: notePress 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Tunedle 🎵</h1>
+        <div class="message" id="message"></div>
+        <div class="guesses-container" id="guesses"></div>
+        <div class="controls">
+            <button id="submitBtn" disabled>Submit</button>
+            <button id="deleteBtn">Delete</button>
+            <button id="restartBtn">Restart</button>
+        </div>
+    </div>
+    
+    <div class="keyboard-container">
+        <div class="keyboard" id="keyboard"></div>
+    </div>
+
+    <!-- Bell SVGs -->
+    <svg style="display:none;">
+        <symbol id="green-bell" viewBox="0 0 32 32">
+            <circle cx="16" cy="20" r="8" fill="#4caf50"/>
+            <rect x="13" y="8" width="6" height="10" rx="3" fill="#4caf50"/>
+            <circle cx="16" cy="28" r="2" fill="#388e3c"/>
+        </symbol>
+        <symbol id="orange-bell" viewBox="0 0 32 32">
+            <circle cx="16" cy="20" r="8" fill="#ff9800"/>
+            <rect x="13" y="8" width="6" height="10" rx="3" fill="#ff9800"/>
+            <circle cx="16" cy="28" r="2" fill="#e65100"/>
+        </symbol>
+        <symbol id="grey-bell" viewBox="0 0 32 32">
+            <circle cx="16" cy="20" r="8" fill="#bdbdbd"/>
+            <rect x="13" y="8" width="6" height="10" rx="3" fill="#bdbdbd"/>
+            <circle cx="16" cy="28" r="2" fill="#757575"/>
+        </symbol>
+    </svg>
+
+    <script>
+        // Notes in C major, middle C up (C4 to C5)
+        const NOTES = [
+            { name: 'C', midi: 60 },
+            { name: 'D', midi: 62 },
+            { name: 'E', midi: 64 },
+            { name: 'F', midi: 65 },
+            { name: 'G', midi: 67 },
+            { name: 'A', midi: 69 },
+            { name: 'B', midi: 71 },
+            { name: 'C5', midi: 72 }
+        ];
+
+        const MAX_ATTEMPTS = 6;
+        const MELODY_LENGTH = 5;
+
+        let solution = [];
+        let guesses = [];
+        let currentGuess = [];
+        let gameOver = false;
+
+        // --- Audio context and note playback ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playNote(midi, duration = 0.35) {
+            const freq = 440 * Math.pow(2, (midi - 69) / 12);
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            gain.gain.value = 0.18;
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+            osc.onended = () => gain.disconnect();
+        }
+
+        function playMelody(melody, delay = 0.45) {
+            melody.forEach((note, i) => {
+                setTimeout(() => playNote(note.midi), i * delay * 1000);
+            });
+        }
+
+        // --- Game logic ---
+        function randomMelody() {
+            let melody = [];
+            for (let i = 0; i < MELODY_LENGTH; i++) {
+                melody.push(NOTES[Math.floor(Math.random() * NOTES.length)]);
+            }
+            return melody;
+        }
+
+        function resetGame() {
+            solution = randomMelody();
+            guesses = [];
+            currentGuess = [];
+            gameOver = false;
+            document.getElementById('message').textContent = '';
+            renderGuesses();
+            renderKeyboard();
+            document.getElementById('submitBtn').disabled = true;
+        }
+
+        function renderKeyboard() {
+            const kb = document.getElementById('keyboard');
+            kb.innerHTML = '';
+            NOTES.forEach((note, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'key';
+                btn.textContent = note.name;
+                btn.dataset.noteName = note.name;
+                btn.onclick = () => {
+                    // Visual feedback - always show
+                    btn.classList.add('active', 'playing');
+                    setTimeout(() => btn.classList.remove('active'), 150);
+                    setTimeout(() => btn.classList.remove('playing'), 200);
+                    
+                    // Play the note immediately - always play
+                    playNote(note.midi, 0.25);
+                    
+                    // Only add to guess if game is active
+                    if (!gameOver && currentGuess.length < MELODY_LENGTH) {
+                        currentGuess.push(note);
+                        renderGuesses();
+                        document.getElementById('submitBtn').disabled = currentGuess.length !== MELODY_LENGTH;
+                    }
+                };
+                kb.appendChild(btn);
+            });
+        }
+
+        function renderGuesses() {
+            const guessesDiv = document.getElementById('guesses');
+            guessesDiv.innerHTML = '';
+            
+            // Render previous guesses with play buttons
+            guesses.forEach(({ guess, result }, guessIndex) => {
+                const row = document.createElement('div');
+                row.className = 'guess-row';
+                
+                for (let i = 0; i < MELODY_LENGTH; i++) {
+                    const box = document.createElement('div');
+                    box.className = 'bell-box ' + result[i];
+                    let bellId = result[i] === 'green' ? 'green-bell' :
+                                 result[i] === 'orange' ? 'orange-bell' : 'grey-bell';
+                    box.innerHTML = `<svg width="32" height="32"><use href="#${bellId}"/></svg>`;
+                    row.appendChild(box);
+                }
+                
+                // Add play button for this guess
+                const playBtn = document.createElement('button');
+                playBtn.className = 'play-guess-btn';
+                playBtn.textContent = '▶';
+                playBtn.onclick = () => {
+                    playMelody(guess, 0.35);
+                };
+                row.appendChild(playBtn);
+                
+                guessesDiv.appendChild(row);
+            });
+            
+            // Render current guess
+            if (!gameOver && guesses.length < MAX_ATTEMPTS) {
+                const row = document.createElement('div');
+                row.className = 'guess-row';
+                for (let i = 0; i < MELODY_LENGTH; i++) {
+                    const box = document.createElement('div');
+                    box.className = 'note-box';
+                    box.textContent = currentGuess[i]?.name || '';
+                    row.appendChild(box);
+                }
+                guessesDiv.appendChild(row);
+            }
+        }
+
+        function checkGuess(guess) {
+            // Returns array of 'green', 'orange', 'grey'
+            let result = Array(MELODY_LENGTH).fill('grey');
+            let solNames = solution.map(n => n.name);
+            let guessNames = guess.map(n => n.name);
+
+            // First pass: green
+            for (let i = 0; i < MELODY_LENGTH; i++) {
+                if (guessNames[i] === solNames[i]) {
+                    result[i] = 'green';
+                    solNames[i] = null; // Mark as used
+                    guessNames[i] = null;
+                }
+            }
+            // Second pass: orange
+            for (let i = 0; i < MELODY_LENGTH; i++) {
+                if (guessNames[i]) {
+                    let idx = solNames.indexOf(guessNames[i]);
+                    if (idx !== -1) {
+                        result[i] = 'orange';
+                        solNames[idx] = null;
+                    }
+                }
+            }
+            return result;
+        }
+
+        function handleSubmit() {
+            if (gameOver || currentGuess.length !== MELODY_LENGTH) return;
+            
+            // Play back the complete guessed melody
+            playMelody(currentGuess);
+            
+            // Check guess
+            const result = checkGuess(currentGuess);
+            guesses.push({ guess: [...currentGuess], result });
+            renderGuesses();
+            
+            // Check win/lose
+            if (result.every(r => r === 'green')) {
+                document.getElementById('message').textContent = '🎉 You guessed the melody!';
+                gameOver = true;
+            } else if (guesses.length >= MAX_ATTEMPTS) {
+                document.getElementById('message').textContent =
+                    'Out of guesses! Melody was: ' + solution.map(n => n.name).join(' ');
+                gameOver = true;
+            }
+            currentGuess = [];
+            document.getElementById('submitBtn').disabled = true;
+        }
+
+        function handleDelete() {
+            if (gameOver || currentGuess.length === 0) return;
+            currentGuess.pop();
+            renderGuesses();
+            document.getElementById('submitBtn').disabled = currentGuess.length !== MELODY_LENGTH;
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && currentGuess.length === MELODY_LENGTH) {
+                handleSubmit();
+            } else if (e.key === 'Backspace') {
+                handleDelete();
+            }
+        });
+
+        document.getElementById('submitBtn').onclick = handleSubmit;
+        document.getElementById('deleteBtn').onclick = handleDelete;
+        document.getElementById('restartBtn').onclick = resetGame;
+
+        // Start game
+        resetGame();
+    </script>
+</body>
+</html>
