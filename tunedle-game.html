@@ -17,6 +17,14 @@
         }
         h1 { 
             margin: 20px 0 10px 0;
+            font-size: 2.5em;
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                margin: 15px 0 10px 0;
+                font-size: 1.8em;
+            }
         }
         
         .game-container {
@@ -58,6 +66,14 @@
             transition: all 0.2s;
         }
         
+        @media (max-width: 480px) {
+            .play-guess-btn {
+                right: -45px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+        
         .play-guess-btn:hover {
             background: #4caf50;
             color: #fff;
@@ -74,6 +90,15 @@
             justify-content: center;
             font-size: 24px;
             background: #fff;
+        }
+        
+        @media (max-width: 480px) {
+            .note-box, .bell-box {
+                width: 40px;
+                height: 40px;
+                margin: 0 2px;
+                font-size: 20px;
+            }
         }
         
         .bell-box.green { background: #b6eab6; }
@@ -94,6 +119,14 @@
             cursor: pointer;
             margin: 0 10px;
             transition: background 0.2s;
+        }
+        
+        @media (max-width: 480px) {
+            button {
+                padding: 8px 16px;
+                font-size: 14px;
+                margin: 0 5px;
+            }
         }
         
         button:disabled { 
@@ -118,6 +151,15 @@
             z-index: 1000;
             text-align: center;
             min-width: 300px;
+            max-width: 90%;
+        }
+        
+        @media (max-width: 480px) {
+            .message-popup {
+                padding: 20px 25px;
+                font-size: 18px;
+                min-width: 250px;
+            }
         }
         
         .message-popup.show {
@@ -159,6 +201,9 @@
             display: flex; 
             justify-content: center; 
             gap: 8px;
+            flex-wrap: wrap;
+            max-width: 600px;
+            margin: 0 auto;
         }
         
         .key {
@@ -172,6 +217,24 @@
             transition: all 0.15s;
             position: relative;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 0 0 auto;
+        }
+        
+        @media (max-width: 480px) {
+            .keyboard-container {
+                padding: 12px 8px;
+            }
+            
+            .keyboard {
+                gap: 4px;
+            }
+            
+            .key {
+                padding: 18px 14px;
+                font-size: 16px;
+                flex: 0 0 calc(12.5% - 4px);
+                min-width: 0;
+            }
         }
         
         .key:hover {
