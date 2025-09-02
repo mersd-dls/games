@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <title>Tunedle - Melody Wordle Game</title>
     <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
         body { 
             font-family: Arial, sans-serif; 
             background: #f4f4f4; 
@@ -23,7 +33,7 @@
         @media (max-width: 480px) {
             h1 {
                 margin: 15px 0 10px 0;
-                font-size: 1.8em;
+                font-size: 2em;
             }
         }
         
@@ -68,9 +78,9 @@
         
         @media (max-width: 480px) {
             .play-guess-btn {
-                right: -45px;
-                padding: 6px 10px;
-                font-size: 12px;
+                right: -50px;
+                padding: 8px 12px;
+                font-size: 14px;
             }
         }
         
@@ -94,10 +104,10 @@
         
         @media (max-width: 480px) {
             .note-box, .bell-box {
-                width: 40px;
-                height: 40px;
-                margin: 0 2px;
-                font-size: 20px;
+                width: 50px;
+                height: 50px;
+                margin: 0 3px;
+                font-size: 22px;
             }
         }
         
@@ -123,9 +133,10 @@
         
         @media (max-width: 480px) {
             button {
-                padding: 8px 16px;
-                font-size: 14px;
+                padding: 12px 20px;
+                font-size: 16px;
                 margin: 0 5px;
+                font-weight: 600;
             }
         }
         
@@ -156,9 +167,9 @@
         
         @media (max-width: 480px) {
             .message-popup {
-                padding: 20px 25px;
-                font-size: 18px;
-                min-width: 250px;
+                padding: 25px 30px;
+                font-size: 20px;
+                min-width: 280px;
             }
         }
         
@@ -222,18 +233,19 @@
         
         @media (max-width: 480px) {
             .keyboard-container {
-                padding: 12px 8px;
+                padding: 15px 10px;
             }
             
             .keyboard {
-                gap: 4px;
+                gap: 6px;
             }
             
             .key {
-                padding: 18px 14px;
-                font-size: 16px;
-                flex: 0 0 calc(12.5% - 4px);
+                padding: 22px 0;
+                font-size: 18px;
+                flex: 0 0 calc(12.5% - 6px);
                 min-width: 0;
+                font-weight: 600;
             }
         }
         
